@@ -60,7 +60,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\CsvOperations.cs" />
-    <Compile Include="Utilities\DataTableOperations.cs" />
+    <Compile Include="Utilities\DtOperations.cs" />
     <Compile Include="Utilities\FileOperations.cs" />
     <Compile Include="Utilities\PrintOperations.cs" />
   </ItemGroup>

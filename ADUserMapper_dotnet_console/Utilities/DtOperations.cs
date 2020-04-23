@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ADUserMapper_dotnet_console.Utilities
 {
-    public static class DataTableOperations
+    public static class DtOperations
     {
         public static DataTable RemoveColumns(DataTable dt, string[] columns)
         {
@@ -23,10 +24,17 @@ namespace ADUserMapper_dotnet_console.Utilities
 
         public static DataTable Contains(DataTable dt, string field, string filter)
         {
+            var parameterExpression = Expression.Parameter(Type.GetType("DataColumn"), "x");
+            var constant = Expression.Constant(filter);
+            var property = Expression.Property(parameterExpression, field);
+            var expression = Expression.Equal(property, constant);
+            var lambda = Expression.Lambda<Func<DataRow, bool>>(expression, parameterExpression);
+            var compiledLambda = lambda.Compile();
 
             var query = from a in dt.AsEnumerable()
-                        .Where  (x => 
-                                    x.Field<string>(field).Contains(filter)
+                        .Where  (
+                                    //x => x.Field<string>(field).Contains(filter)
+                                    compiledLambda
                                 )
                         select a;
 
@@ -71,30 +79,6 @@ namespace ADUserMapper_dotnet_console.Utilities
 
             return dt;
         }
-
-        //private static DataTable QueryToDataTable(DataTable dt, EnumerableRowCollection<DataRow> query)
-        //{
-        //    DataTable table = new DataTable("table");
-        //    DataColumn column;
-
-        //    foreach (var item in dt.Columns)
-        //    {
-        //        column = new DataColumn
-        //        {
-        //            DataType = Type.GetType("System.String"),
-        //            ColumnName = item.ToString()
-        //        };
-        //        table.Columns.Add(column);
-        //    }
-
-        //    for (int i = 0; query.ToList().Count > i; i++)
-        //    {
-        //        table.ImportRow(query.ToList()[i]);
-        //    }
-
-        //    return table;
-
-        //}
 
         public static DataTable AddColumnDummyData(DataTable dt, string[] colNames)
         {
