@@ -14,6 +14,18 @@ namespace ADUserMapper_dotnet_console
         {
             Process.processAD();
 
+            //DateTime now = DateTime.Now;
+
+            //Console.WriteLine(now.ToFileTime());
+
+            //if(now.ToFileTime()> 9220000000000000000)
+            //{
+            //    Console.WriteLine("true");
+            //} else
+            //{
+            //    Console.WriteLine("false");
+            //}
+
             Console.ReadLine();
         }
     }

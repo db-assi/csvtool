@@ -21,12 +21,22 @@ namespace ADUserMapper_dotnet_console.Utilities
 
         }
 
-        public static DataTable Contains(DataTable dt, string field, string filter)
+        public static DataTable RemoveColumn(DataTable dt, string column)
+        {
+
+            dt.Columns.Remove(column);
+
+            return dt;
+
+        }
+
+        public static DataTable Contains(DataTable dt, string field, string[] filters)
         {
 
             var query = from a in dt.AsEnumerable()
                         .Where  (x => 
-                                    x.Field<string>(field).Contains(filter)
+                                    x.Field<string>(field).Contains(filters[0]) ||
+                                    x.Field<string>(field).Contains(filters[1])
                                 )
                         select a;
 
@@ -71,30 +81,6 @@ namespace ADUserMapper_dotnet_console.Utilities
 
             return dt;
         }
-
-        //private static DataTable QueryToDataTable(DataTable dt, EnumerableRowCollection<DataRow> query)
-        //{
-        //    DataTable table = new DataTable("table");
-        //    DataColumn column;
-
-        //    foreach (var item in dt.Columns)
-        //    {
-        //        column = new DataColumn
-        //        {
-        //            DataType = Type.GetType("System.String"),
-        //            ColumnName = item.ToString()
-        //        };
-        //        table.Columns.Add(column);
-        //    }
-
-        //    for (int i = 0; query.ToList().Count > i; i++)
-        //    {
-        //        table.ImportRow(query.ToList()[i]);
-        //    }
-
-        //    return table;
-
-        //}
 
         public static DataTable AddColumnDummyData(DataTable dt, string[] colNames)
         {
