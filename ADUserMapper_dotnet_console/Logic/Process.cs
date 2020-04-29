@@ -23,7 +23,7 @@ namespace ADUserMapper_dotnet_console.Logic
 
             dt = DtOperations.Contains(dt, "CanonicalName", "NormalUsers");
 
-            dt = DtOperations.IsNull(dt, "EmailAddress");
+            dt = DtOperations.IsNullD(dt, "EmailAddress");
 
             string[] oldNames = { "DisplayName", "Title", "EmailAddress", "OfficePhone" };
             string[] newNames = {"Name", "Job Title", "Email", "Number" };
@@ -36,7 +36,7 @@ namespace ADUserMapper_dotnet_console.Logic
 
             dt = DtOperations.AddColumnsDefaultValue(dt, "Site", "GOSH");
 
-            CsvOperations.DataTableToCsv(dt, "C:\\Users\\Bassid\\Documents\\Dev\\csvtool\\static\\output.csv");
+            CsvOperations.DataTableToCsv(dt, "C:\\Users\\daian\\Documents\\c.projects\\DRIVE\\GSTT\\output.csv");
 
 
 
