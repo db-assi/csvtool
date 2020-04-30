@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ADUserMapper_dotnet_console.Models;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -23,7 +24,21 @@ namespace ADUserMapper_dotnet_console.Utilities
 
         }
 
-        public static DataTable Contains(DataTable dt, string col_name, string condition)
+        public static DataTable RemoveRows(DataTable dt, List<Query> queries, List<string> criteria)
+        {
+            ParameterExpression parameter = Expression.Parameter(typeof(DataRow), "x");
+            var lambda = ExpressionsOperations.CreateCompoundCriteria(queries, criteria, parameter);
+
+            var query = from a in dt.AsEnumerable()
+                        .Where  (
+                                   lambda
+                                )
+                        select a;
+
+            return query.CopyToDataTable();
+        }
+
+        public static DataTable Contains(DataTable dt, string col_name, string[] condition)
         {
             // x => x.Field<string>(field).Contains(filter)
 
@@ -41,14 +56,17 @@ namespace ADUserMapper_dotnet_console.Utilities
             MethodInfo contains = typeof(string).GetMethod("Contains", new[] { typeof(string) });
 
             // x.Field<string>(field).Contains(filter)
-            Expression predicate = Expression.Call(_field, contains, Expression.Constant(condition));
+            Expression p1 = Expression.Call(_field, contains, Expression.Constant(condition[0]));
 
+            Expression p2 = Expression.Call(_field, contains, Expression.Constant(condition[1]));
 
-            //Expression left = Expression.Property(_field, typeof(string).GetProperty("Length"));
-            //Expression right = Expression.Constant(0, typeof(int));
-            //Expression predicate = Expression.NotEqual(left, right);
+            Expression predicate = Expression.Or(p1, p2);
 
+            // x => x.Field<string>(field).Contains(filter)
             var lambda = Expression.Lambda<Func<DataRow, bool>>(predicate, new ParameterExpression[] { parameter });
+
+
+
             var compiled = lambda.Compile();
 
             var query = from a in dt.AsEnumerable()
@@ -59,16 +77,6 @@ namespace ADUserMapper_dotnet_console.Utilities
 
             return query.CopyToDataTable();
 
-        }
-
-        private static MethodCallExpression GetFieldCallExpression(ParameterExpression expRow, MethodInfo methodFieldGeneric, Type type, string columnName)
-        {
-            ConstantExpression expColumnName = Expression.Constant(columnName, typeof(string));
-
-            MethodInfo methodFieldTyped = methodFieldGeneric.MakeGenericMethod(type);
-
-            MethodCallExpression expCall = Expression.Call(null, methodFieldTyped, expRow, expColumnName);
-            return expCall;
         }
 
         public static DataTable Excludes(DataTable dt, string field, string filter)
@@ -92,7 +100,7 @@ namespace ADUserMapper_dotnet_console.Utilities
         }
 
         public static DataTable IsNullD(DataTable dt, string col_name)
-        {
+           {
             //x => x.Field<string>(field).Length != 0
 
             ParameterExpression parameter = Expression.Parameter(typeof(DataRow), "x");

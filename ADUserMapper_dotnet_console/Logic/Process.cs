@@ -1,4 +1,5 @@
-﻿using ADUserMapper_dotnet_console.Utilities;
+﻿using ADUserMapper_dotnet_console.Models;
+using ADUserMapper_dotnet_console.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -21,7 +22,24 @@ namespace ADUserMapper_dotnet_console.Logic
 
             DtOperations.RemoveColumns(dt, columns);
 
-            dt = DtOperations.Contains(dt, "CanonicalName", "NormalUsers");
+            //string[] filters = { "NormalUsers", "ICTUsers" };
+
+            //dt = DtOperations.Contains(dt, "CanonicalName", filters);
+
+            Query q1 = new Query("CanonicalName", "contains", "NormalUsers");
+            Query q2 = new Query("CanonicalName", "contains", "ICTUsers");
+
+            List<Query> queries = new List<Query>();
+
+            queries.Add(q1);
+            queries.Add(q2);
+
+            List<string> criteria = new List<string>();
+            criteria.Add("or");
+
+            Console.WriteLine(queries.Count);
+
+            dt = DtOperations.RemoveRows(dt, queries, criteria);
 
             dt = DtOperations.IsNullD(dt, "EmailAddress");
 
