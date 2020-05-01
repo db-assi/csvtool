@@ -24,7 +24,7 @@ namespace ADUserMapper_dotnet_console.Utilities
 
         }
 
-        public static DataTable RemoveRows(DataTable dt, List<Query> queries, List<string> criteria)
+        public static DataTable RemoveRows(DataTable dt, List<Dictionary<string, object>> queries, List<string> criteria)
         {
             ParameterExpression parameter = Expression.Parameter(typeof(DataRow), "x");
             var lambda = ExpressionsOperations.CreateCompoundCriteria(queries, criteria, parameter);

@@ -14,25 +14,24 @@ namespace ADUserMapper_dotnet_console.Utilities
     public static class ExpressionsOperations
     {
 
-        public static Func<DataRow, bool> CreateCompoundCriteria(List<Query> queries, List<string> criteria, ParameterExpression parameter)
+        public static Func<DataRow, bool> CreateCompoundCriteria(List<Dictionary<string, object>> queries, List<string> criteria, ParameterExpression parameter)
         {
-            //x => x.Field<string>(field_name).Method(parameter) || x => x.Field<string>(field_name).Method(parameter) && x => x.Field<string>(field_name).Method(parameter) 
             List<Expression> expressions = CreatePredicates(queries, parameter);
-
             Expression expression = expressions[0];
 
-            for (var i = 1; i < expressions.Count; i++)
+            if(criteria.Count != 0)
             {
-                expression = BitWiseOperation(expression, expressions[i], criteria[i - 1]);
+                for (var i = 1; i < expressions.Count; i++)
+                {
+                    expression = BitWiseOperation(expression, expressions[i], criteria[i - 1]);
+                }
             }
 
-            var lambda = Expression.Lambda<Func<DataRow, bool>>(expression, new ParameterExpression[] { parameter }).Compile();
-
-            return lambda;
+            return Expression.Lambda<Func<DataRow, bool>>(expression, new ParameterExpression[] { parameter }).Compile();
 
         }
 
-        private static List<Expression> CreatePredicates(List<Query> queries, ParameterExpression parameter)
+        private static List<Expression> CreatePredicates(List<Dictionary<string, object>> queries, ParameterExpression parameter)
         {
             //x => x.Field<string>(field_name).Method(parameter)
             List<Expression> expressions = new List<Expression>();
@@ -54,77 +53,76 @@ namespace ADUserMapper_dotnet_console.Utilities
             return Expression.Call(null, generic, parameter, Expression.Constant(field));
         }
 
-        private static Expression Left(Query query, ParameterExpression parameter)
+        private static Expression Left(Dictionary<string, object> query, ParameterExpression parameter)
         {
 
-            Expression field = Field(query.Field, parameter);
-            string type = VLookUps.LeftOperation(query.Operation);
+            Expression field = Field(query["Field"].ToString(), parameter);
 
             //x.Field<string>(field_name).Method(parameter)
-            if (type == "MethodInfo")
+            if (query.ContainsKey("Method"))
             {
-                MethodInfo operation = VLookUps.OperationLookUp(query.Operation);
-                return Expression.Call(field, operation, Expression.Constant(query.Value));
+                MethodInfo operation = VLookUps.OperationLookUp(query["Method"].ToString().ToLower());
+                if (query.ContainsKey("Unary"))
+                {
+                    return Expression.Not(Expression.Call(field, operation, Expression.Constant(query["Value"])));
+                }
+                return Expression.Call(field, operation, Expression.Constant(query["Value"]));
             }
             //x.Field<string>(field_name).Property
-            else if (type == "Property")
+            else if (query.ContainsKey("Property"))
             {
-                return VLookUps.Property(field, query.Operation);
+                return VLookUps.Property(field, query["Property"].ToString().ToLower());
             }
+
             //x.Field<string>(field_name)
-            else
-            {
                 return field;
-            }
         }
 
-        private static Expression Right(Query query)
+        private static Expression Right(Dictionary<string, object> query)
         {
-            string operation = VLookUps.LeftOperation(query.Operation);
-            Type type = query.Value.GetType();
+            Type type = query["Value"].GetType();
 
-            if (operation == "MethodInfo")
+            if (query.ContainsKey("Method"))
             {
                 return null;
             }
             else
             {
-                return Expression.Constant(query.Value, type);
+                return Expression.Constant(query["Value"], type);
             }
         }
 
-        private static Expression Predicate(Query query, ParameterExpression parameter)
+        private static Expression Predicate(Dictionary<string, object> query, ParameterExpression parameter)
         {
-            string operation = VLookUps.LeftOperation(query.Operation);
             Expression left = Left(query, parameter);
 
-            if(operation == "MethodInfo")
+            if(query.ContainsKey("Method"))
             {
                 return left;
-            } 
+            }
 
             Expression right = Right(query);
-            return ComparissonOperation(left, right, query.Operation);
+            return ComparissonOperation(left, right, query["Comparisson"].ToString().ToLower());
         }
 
-        private static Expression ComparissonOperation(Expression e1, Expression e2, string operation)
+        private static Expression ComparissonOperation(Expression left, Expression right, string operation)
         {
             switch (operation)
             {
                 case "equal":
-                    return Expression.Equal(e1, e2);
+                    return Expression.Equal(left, right);
                 case "notequal":
-                    return Expression.NotEqual(e1, e2);
+                    return Expression.NotEqual(left, right);
                 case "greaterthan":
-                    return Expression.GreaterThan(e1, e2);
+                    return Expression.GreaterThan(left, right);
                 case "greaterthanorequal":
-                    return Expression.GreaterThanOrEqual(e1, e2);
+                    return Expression.GreaterThanOrEqual(left, right);
                 case "lessthan":
-                    return Expression.LessThan(e1, e2);
+                    return Expression.LessThan(left, right);
                 case "lessthanorequal":
-                    return Expression.LessThanOrEqual(e1, e2);
+                    return Expression.LessThanOrEqual(left, right);
                 default:
-                    return e1;
+                    return left;
             }
         }
 

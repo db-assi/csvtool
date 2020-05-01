@@ -26,25 +26,65 @@ namespace ADUserMapper_dotnet_console.Logic
 
             //dt = DtOperations.Contains(dt, "CanonicalName", filters);
 
-            Query q1 = new Query("CanonicalName", "contains", "NormalUsers");
-            Query q2 = new Query("CanonicalName", "contains", "ICTUsers");
-            Query q3 = new Query("Email", "lenght", 0);
+            //Query q1 = new Query("CanonicalName", "contains", "NormalUsers");
+            //Query q2 = new Query("CanonicalName", "contains", "ICTUsers");
+            //Query q3 = new Query("Email", "lenght", 0);
 
-            List<Query> queries = new List<Query>();
+            //List<Query> queries = new List<Query>();
+
+            //queries.Add(q1);
+            //queries.Add(q2);
+            //queries.Add(q3);
+
+            List<string> criteria = new List<string>();
+            criteria.Add("or");
+            criteria.Add("and");
+            criteria.Add("and");
+
+            //Console.WriteLine(queries.Count);
+
+            //dt = DtOperations.RemoveRows(dt, queries, criteria);
+
+            //dt = DtOperations.IsNullD(dt, "EmailAddress");
+
+            var queries = new List<Dictionary<string, object>>();
+
+            var q1 = new Dictionary<string, object>
+            {
+                ["Field"] = "CanonicalName",
+                ["Method"] = "Contains",
+                ["Value"] = "NormalUsers"
+            };
+
+            var q2 = new Dictionary<string, object>
+            {
+                ["Field"] = "CanonicalName",
+                ["Method"] = "Contains",
+                ["Value"] = "ICTUsers"
+            };
+
+            var q3 = new Dictionary<string, object>
+            {
+                ["Field"] = "CanonicalName",
+                ["Method"] = "Contains",
+                ["Unary"] = true,
+                ["Value"] = "GOSH-TEST"
+            };
+
+            var q4 = new Dictionary<string, object>
+            {
+                ["Field"] = "EmailAddress",
+                ["Property"] = "Length",
+                ["Comparisson"] = "NotEqual",
+                ["Value"] = 0
+            };
 
             queries.Add(q1);
             queries.Add(q2);
             queries.Add(q3);
-
-            List<string> criteria = new List<string>();
-            criteria.Add("or");
-            criteria.Add("or");
-
-            Console.WriteLine(queries.Count);
+            queries.Add(q4);
 
             dt = DtOperations.RemoveRows(dt, queries, criteria);
-
-            //dt = DtOperations.IsNullD(dt, "EmailAddress");
 
             string[] oldNames = { "DisplayName", "Title", "EmailAddress", "OfficePhone" };
             string[] newNames = {"Name", "Job Title", "Email", "Number" };
