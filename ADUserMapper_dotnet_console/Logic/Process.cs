@@ -28,20 +28,23 @@ namespace ADUserMapper_dotnet_console.Logic
 
             Query q1 = new Query("CanonicalName", "contains", "NormalUsers");
             Query q2 = new Query("CanonicalName", "contains", "ICTUsers");
+            Query q3 = new Query("Email", "lenght", 0);
 
             List<Query> queries = new List<Query>();
 
             queries.Add(q1);
             queries.Add(q2);
+            queries.Add(q3);
 
             List<string> criteria = new List<string>();
+            criteria.Add("or");
             criteria.Add("or");
 
             Console.WriteLine(queries.Count);
 
             dt = DtOperations.RemoveRows(dt, queries, criteria);
 
-            dt = DtOperations.IsNullD(dt, "EmailAddress");
+            //dt = DtOperations.IsNullD(dt, "EmailAddress");
 
             string[] oldNames = { "DisplayName", "Title", "EmailAddress", "OfficePhone" };
             string[] newNames = {"Name", "Job Title", "Email", "Number" };

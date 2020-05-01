@@ -40,6 +40,29 @@ namespace ADUserMapper_dotnet_console.Logic
             }
         }
 
+        public static string LeftOperation(string operation)
+        {
+            switch (operation)
+            {
+                case "contains":
+                    return "MethodInfo";
+                case "length":
+                    return "Property";
+                default:
+                    return "Binary";
+            }
+        }
+
+        public static Expression Property(Expression e, string property)
+        {
+            switch (property)
+            {
+                case "lenght":
+                    return Expression.Property(e, typeof(string).GetProperty("Length"));
+                default:
+                    return null;
+            }
+        }
 
 
 
