@@ -1,5 +1,4 @@
 ﻿using ADUserMapper_dotnet_console.Logic;
-using ADUserMapper_dotnet_console.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -14,7 +13,7 @@ namespace ADUserMapper_dotnet_console.Utilities
     public static class ExpressionsOperations
     {
 
-        public static Func<DataRow, bool> CreateCompoundCriteria(List<Dictionary<string, object>> queries, List<string> criteria, ParameterExpression parameter)
+        public static Func<DataRow, bool> CreateCriteria(List<Dictionary<string, object>> queries, List<string> criteria, ParameterExpression parameter)
         {
             List<Expression> expressions = CreatePredicates(queries, parameter);
             Expression expression = expressions[0];
@@ -28,12 +27,10 @@ namespace ADUserMapper_dotnet_console.Utilities
             }
 
             return Expression.Lambda<Func<DataRow, bool>>(expression, new ParameterExpression[] { parameter }).Compile();
-
         }
 
         private static List<Expression> CreatePredicates(List<Dictionary<string, object>> queries, ParameterExpression parameter)
         {
-            //x => x.Field<string>(field_name).Method(parameter)
             List<Expression> expressions = new List<Expression>();
 
             foreach (var query in queries)
@@ -47,7 +44,6 @@ namespace ADUserMapper_dotnet_console.Utilities
 
         private static Expression Field(string field, ParameterExpression parameter)
         {
-            //x.Field<string>(field_name)
             MethodInfo method = typeof(DataRowExtensions).GetMethod("Field", new[] { typeof(DataRow), typeof(string) });
             MethodInfo generic = method.MakeGenericMethod(typeof(string));
             return Expression.Call(null, generic, parameter, Expression.Constant(field));
@@ -55,27 +51,30 @@ namespace ADUserMapper_dotnet_console.Utilities
 
         private static Expression Left(Dictionary<string, object> query, ParameterExpression parameter)
         {
-
             Expression field = Field(query["Field"].ToString(), parameter);
+            Expression left;
 
-            //x.Field<string>(field_name).Method(parameter)
             if (query.ContainsKey("Method"))
             {
                 MethodInfo operation = VLookUps.OperationLookUp(query["Method"].ToString().ToLower());
-                if (query.ContainsKey("Unary"))
-                {
-                    return Expression.Not(Expression.Call(field, operation, Expression.Constant(query["Value"])));
-                }
-                return Expression.Call(field, operation, Expression.Constant(query["Value"]));
+                left = Expression.Call(field, operation, Expression.Constant(query["Value"]));
             }
-            //x.Field<string>(field_name).Property
             else if (query.ContainsKey("Property"))
             {
-                return VLookUps.Property(field, query["Property"].ToString().ToLower());
+                left = VLookUps.Property(field, query["Property"].ToString().ToLower());
+            }
+            else
+            {
+                MethodInfo method = typeof(long).GetMethod("Parse", new[] { typeof(string) });
+                left = Expression.Convert(field, typeof(long), method);
             }
 
-            //x.Field<string>(field_name)
-                return field;
+            if (query.ContainsKey("Unary"))
+            {
+                return Expression.Not(left);
+            }
+
+            return left;
         }
 
         private static Expression Right(Dictionary<string, object> query)
@@ -86,10 +85,8 @@ namespace ADUserMapper_dotnet_console.Utilities
             {
                 return null;
             }
-            else
-            {
-                return Expression.Constant(query["Value"], type);
-            }
+
+            return Expression.Constant(query["Value"], type);
         }
 
         private static Expression Predicate(Dictionary<string, object> query, ParameterExpression parameter)
@@ -132,11 +129,8 @@ namespace ADUserMapper_dotnet_console.Utilities
             {
                 return Expression.And(e1, e2);
             }
-            else
-            {
-                return Expression.Or(e1, e2);
-            }
+ 
+            return Expression.Or(e1, e2);
         }
     }
-
 }
