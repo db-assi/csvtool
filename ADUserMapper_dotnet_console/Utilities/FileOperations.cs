@@ -14,8 +14,8 @@ namespace ADUserMapper_dotnet_console.Utilities
     {
         public static string OpenFileDialog()
         {
-            //return "C:\\Users\\daian\\Documents\\c.projects\\DRIVE\\GSTT\\ADusers.csv";
-            return "C:\\Users\\daian\\Documents\\c.projects\\DRIVE\\GSTT\\132329990968152243.csv";
+            return "C:\\Users\\daian\\Documents\\c.projects\\DRIVE\\GSTT\\ADusers.csv";
+            //return "C:\\Users\\daian\\Documents\\c.projects\\DRIVE\\GSTT\\132329990968152243.csv";
         }
 
 

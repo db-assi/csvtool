@@ -30,6 +30,31 @@ namespace ADUserMapper_dotnet_console
 
             //Console.WriteLine(long.Parse("0"));
 
+            //var q1 = new Dictionary<string, object>
+            //{
+            //    ["Field"] = "CanonicalName",
+            //    ["Operation"] = "NotContain",
+            //    ["Value"] = "NormalUsers",
+            //    ["KeepNull"] = false
+            //};
+
+            //if (q1["Operation"].ToString().Contains("Not"))
+            //{
+            //    Console.WriteLine("q1 contains... NotContains " + q1["Operation"]);
+            //}
+            
+
+
+
+            //q1["Operation"] = "IsNull";
+
+            //if (q1["Operation"].ToString().Contains("Null"))
+            //{
+            //    Console.WriteLine("q1 contains... Null " + q1["Operation"]);
+            //}
+
+            //Console.WriteLine("after change " + q1["Operation"]);
+
             Console.ReadLine();
         }
     }

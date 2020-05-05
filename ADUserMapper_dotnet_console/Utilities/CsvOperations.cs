@@ -22,9 +22,10 @@ namespace ADUserMapper_dotnet_console.Utilities
                     {
                         using (var data = new CsvDataReader(csv))
                         {
-                            var dataTable = new DataTable();
-                            dataTable.Load(data);
-                            return dataTable;
+                            var dt = new DataTable();
+                            dt.Load(data);
+
+                            return dt;
                         }
                     }
                 }
@@ -41,19 +42,19 @@ namespace ADUserMapper_dotnet_console.Utilities
             {
                 using (StreamWriter sw = new StreamWriter(path, false))
                 {
-                    for(int i = 0; i < dt.Columns.Count; i++)
+                    for (int i = 0; i < dt.Columns.Count; i++)
                     {
                         sw.Write(dt.Columns[i]);
-                        if(i < dt.Columns.Count - 1)
+                        if (i < dt.Columns.Count - 1)
                         {
                             sw.Write(",");
                         }
                     }
                     sw.Write(sw.NewLine);
 
-                    foreach(DataRow dr in dt.Rows)
+                    foreach (DataRow dr in dt.Rows)
                     {
-                        for(int i = 0; i < dt.Columns.Count; i++)
+                        for (int i = 0; i < dt.Columns.Count; i++)
                         {
                             if (!Convert.IsDBNull(dr[i]))
                             {
@@ -81,9 +82,27 @@ namespace ADUserMapper_dotnet_console.Utilities
             {
                 throw;
             }
+        }
 
+        private static DataTable ReplaceEmptyString(DataTable dt)
+        {
+            foreach(DataColumn col in dt.Columns)
+            {
+                col.ReadOnly = false;
+            }
 
-            ;
+            foreach (DataRow row in dt.Rows)
+            {
+                for (int i = 0; i < dt.Columns.Count; i++)
+                {
+                    if (row[i].ToString().Length == 0)
+                    {
+                        row[i] = "0";
+                    }
+                }
+            }
+
+            return dt;
         }
 
     }
