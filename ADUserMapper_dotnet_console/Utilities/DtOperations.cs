@@ -22,17 +22,33 @@ namespace ADUserMapper_dotnet_console.Utilities
 
         public static DataTable RemoveRows(DataTable dt, List<Dictionary<string, object>> queries, List<string> criteria)
         {
-           ParameterExpression parameter = Expression.Parameter(typeof(DataRow), "x");
-           var lambda = ExpressionsOperations.CreateCriteria(queries, criteria, parameter);
+            ParameterExpression parameter = Expression.Parameter(typeof(DataRow), "x");
+            var lambda = ExpressionsOperations.CreateCriteria(queries, criteria, parameter);
 
             var query = from a in dt.AsEnumerable()
-                        .Where  (
-                                   lambda
-                                )
- 
+                        .Where( lambda )
                         select a;
 
             return query.CopyToDataTable();
+        }
+
+        public static DataTable EditFields(DataTable dt, Dictionary<string, object> q1, Dictionary<string, object> q2)
+        {
+            ParameterExpression parameter = Expression.Parameter(typeof(DataRow), "x");
+            var condition = ExpressionsOperations.CreateCriteria(q1, parameter);
+            var result = ExpressionsOperations.CreateSetField(q2, parameter);
+
+            var index = dt.Columns.IndexOf("OfficePhone");
+
+            dt.AsEnumerable()
+            .Where(condition)
+
+            .ToList()
+            //this lambda comes from the value on the query dictionary
+            .ForEach(result);
+            //.ForEach(x => x.SetField(index, "00" + x.Field<string>("OfficePhone").ToString()));
+
+            return dt; ;
         }
 
         public static DataTable ConditionalColumns(DataTable dt, string newCol, string lookUpCol, Func<string, string> VLooupMethod)

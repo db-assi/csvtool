@@ -64,6 +64,7 @@
     <Compile Include="Utilities\ExpressionsOperations.cs" />
     <Compile Include="Utilities\FileOperations.cs" />
     <Compile Include="Utilities\PrintOperations.cs" />
+    <Compile Include="Utilities\StringOperations.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

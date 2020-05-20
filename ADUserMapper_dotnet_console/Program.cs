@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using ADUserMapper_dotnet_console.Logic;
@@ -14,46 +16,21 @@ namespace ADUserMapper_dotnet_console
         {
             Process.processAD();
 
-            //Console.WriteLine(DateTime.Today.ToFileTime());
-            //string date = "132000000000000000";
+            //var methods = typeof(DataRowExtensions).GetMethods();
 
-            //long number = long.Parse(date);
+            //foreach (var m in methods)
+            //{
+            //    //Console.WriteLine(m);
 
-            //if (number < DateTime.Today.ToFileTime())
-            //{
-            //    Console.WriteLine("this is true" + number + "<" + DateTime.Today.ToFileTime());
-            //}
-            //else
-            //{
-            //    Console.WriteLine("this is false" + number + "<" + DateTime.Today.ToFileTime());
+            //    foreach (var pars in m.GetParameters())
+            //    {
+            //        Console.WriteLine(m + "Par Type: " + pars.ParameterType);
+            //    }
             //}
 
-            //Console.WriteLine(long.Parse("0"));
+            //var method = typeof(DataRowExtensions).GetMethod("Field", new[] { typeof(DataRow), typeof(DataColumn), typeof(string) });
 
-            //var q1 = new Dictionary<string, object>
-            //{
-            //    ["Field"] = "CanonicalName",
-            //    ["Operation"] = "NotContain",
-            //    ["Value"] = "NormalUsers",
-            //    ["KeepNull"] = false
-            //};
-
-            //if (q1["Operation"].ToString().Contains("Not"))
-            //{
-            //    Console.WriteLine("q1 contains... NotContains " + q1["Operation"]);
-            //}
-            
-
-
-
-            //q1["Operation"] = "IsNull";
-
-            //if (q1["Operation"].ToString().Contains("Null"))
-            //{
-            //    Console.WriteLine("q1 contains... Null " + q1["Operation"]);
-            //}
-
-            //Console.WriteLine("after change " + q1["Operation"]);
+            //Console.WriteLine("Returned method: " + method);
 
             Console.ReadLine();
         }

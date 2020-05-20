@@ -29,11 +29,34 @@ namespace ADUserMapper_dotnet_console.Utilities
             return Expression.Lambda<Func<DataRow, bool>>(expression, new ParameterExpression[] { parameter }).Compile();
         }
 
+        public static Func<DataRow, bool> CreateCriteria(Dictionary<string, object> query, ParameterExpression parameter)
+        {
+            Expression expression = ConditionalClause(query, parameter);
+
+            return Expression.Lambda<Func<DataRow, bool>>(expression, new ParameterExpression[] { parameter }).Compile();
+        }
+
+        public static Action<DataRow> CreateSetField(Dictionary<string, object> query, ParameterExpression parameter)
+        {
+            Expression expression = SetField(query, parameter);
+
+            return Expression.Lambda<Action<DataRow>>(expression, new ParameterExpression[] { parameter }).Compile();
+        }
+
         private static Expression Field(string field, ParameterExpression parameter)
         {
             MethodInfo method = typeof(DataRowExtensions).GetMethod("Field", new[] { typeof(DataRow), typeof(string) });
             MethodInfo generic = method.MakeGenericMethod(typeof(string));
             return Expression.Call(null, generic, parameter, Expression.Constant(field));
+        }
+
+        private static Expression SetField(Dictionary<string, object> query, ParameterExpression parameter)
+        {
+            Type T = query["Value"].GetType();
+
+            MethodInfo method = typeof(DataRowExtensions).GetMethod("SetField", new Type[] { typeof(DataRow), typeof(string), typeof(string) });
+            MethodInfo generic = method.MakeGenericMethod(typeof(string));
+            return Expression.Call(null, generic, parameter, Expression.Constant(query["Field"]), Expression.Constant(query["Value"]));
         }
 
         private static Expression Right(Dictionary<string, object> query)
@@ -63,7 +86,7 @@ namespace ADUserMapper_dotnet_console.Utilities
                 MethodInfo operation = VLookUps.OperationLookUp(query["Operation"].ToString().ToLower());
                 left = Expression.Call(field, operation, Expression.Constant(query["Value"]));
             }
-            else if (query["Operation"].ToString().Contains("Null"))
+            else if (query["Operation"].ToString().Contains("Null") || query["Operation"].ToString().Contains("Length"))
             {
                 left = VLookUps.Property(field, query["Operation"].ToString().ToLower());
             }
@@ -154,17 +177,17 @@ namespace ADUserMapper_dotnet_console.Utilities
         {
             switch (operation)
             {
-                case "equal":
+                case string a when a.Contains("equal"):
                     return Expression.Equal(left, right);
-                case "notequal":
+                case string a when a.Contains("notequal"):
                     return Expression.NotEqual(left, right);
-                case "greaterthan":
+                case string a when a.Contains("greaterthan"):
                     return Expression.GreaterThan(left, right);
-                case "greaterthanorequal":
+                case string a when a.Contains("greaterthanorequal"):
                     return Expression.GreaterThanOrEqual(left, right);
-                case "lessthan":
+                case string a when a.Contains("lessthan"):
                     return Expression.LessThan(left, right);
-                case "lessthanorequal":
+                case string a when a.Contains("lessthanorequal"):
                     return Expression.LessThanOrEqual(left, right);
                 default:
                     return left;

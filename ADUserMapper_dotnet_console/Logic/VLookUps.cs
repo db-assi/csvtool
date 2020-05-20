@@ -33,8 +33,7 @@ namespace ADUserMapper_dotnet_console.Logic
         {
             switch(operation)
             {
-                case "contain":
-                case "notcontain":
+                case string a when a.Contains("contain"):
                     return typeof(string).GetMethod("Contains", new[] { typeof(string) });
                 default:
                     return null;
@@ -45,8 +44,7 @@ namespace ADUserMapper_dotnet_console.Logic
         {
             switch (property)
             {
-                case "isnull":
-                case "isnotnull":
+                case string a when a.Contains("null") || a.Contains("length"):
                     return Expression.Property(e, typeof(string).GetProperty("Length"));
                 default:
                     return null;

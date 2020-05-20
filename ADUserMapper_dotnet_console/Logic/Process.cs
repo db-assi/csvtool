@@ -56,6 +56,8 @@ namespace ADUserMapper_dotnet_console.Logic
                 ["KeepNull"] = false
             };
 
+            var queries1 = new List<Dictionary<string, object>>();
+
             //should start a new query to remove rows
             var q5 = new Dictionary<string, object>
             {
@@ -67,13 +69,15 @@ namespace ADUserMapper_dotnet_console.Logic
 
             var q6 = new Dictionary<string, object>
             {
-                ["Field"] = "msDS-User-Account-Control-Computed",
+                ["Field"] = "accountExpires",
                 ["Operation"] = "Equal",
                 ["Value"] = long.Parse("0"),
                 ["KeepNull"] = false
             };
 
             List<string> criteria = new List<string>();
+
+            List<string> criteria1 = new List<string>();
 
             queries.Add(q1);
                 criteria.Add("or");
@@ -82,19 +86,105 @@ namespace ADUserMapper_dotnet_console.Logic
             queries.Add(q3);
                 criteria.Add("and");
             queries.Add(q4);
-                criteria.Add("and");
-            queries.Add(q5);
-                criteria.Add("or");
-            queries.Add(q6);
+                
+
+            queries1.Add(q5);
+                criteria1.Add("or");
+            queries1.Add(q6);
 
             dt = DtOperations.RemoveRows(dt, queries, criteria);
 
-            //string[] oldNames = { "DisplayName", "Title", "EmailAddress", "OfficePhone" };
-            //string[] newNames = {"Name", "Job Title", "Email", "Number" };
+            dt = DtOperations.RemoveRows(dt, queries1, criteria1);
 
-           // dt = DtOperations.ChangeColumnName(dt, oldNames, newNames);
+            string[] remove = { "accountExpires", "CanonicalName", "msDS-User-Account-Control-Computed" };
 
-            CsvOperations.DataTableToCsv(dt, "C:\\Users\\daian\\Documents\\c.projects\\DRIVE\\GSTT\\output\\" + DateTime.UtcNow.ToFileTime() + ".csv");
+            dt = DtOperations.RemoveColumns(dt, remove);
+
+            CsvOperations.DataTableToCsv(dt, "C:\\Users\\daian\\Documents\\c.projects\\DRIVE\\GSTT\\output\\preoutput.csv");
+
+            DataRow[] rows = dt.Select();
+            int lookUpColIndex = dt.Columns.IndexOf("OfficePhone");
+
+            for (int i = 0; dt.Rows.Count > i; i++)
+            {
+                if (rows[i][lookUpColIndex].ToString().ToLower().Contains("extn"))
+                {
+                    string substring = StringOperations.RemoveAfter(rows[i][lookUpColIndex].ToString().ToLower(), "extn");
+                    dt.Rows[i].SetField(lookUpColIndex, substring);
+                }
+                if (rows[i][lookUpColIndex].ToString().ToLower().Contains("ext"))
+                {
+                    string substring = StringOperations.RemoveAfter(rows[i][lookUpColIndex].ToString().ToLower(), "ext");
+                    dt.Rows[i].SetField(lookUpColIndex, substring);
+                }
+                if (rows[i][lookUpColIndex].ToString().ToLower().Contains("ex"))
+                {
+                    string substring = StringOperations.RemoveAfter(rows[i][lookUpColIndex].ToString().ToLower(), "ex");
+                    dt.Rows[i].SetField(lookUpColIndex, substring);
+                }
+                if (rows[i][lookUpColIndex].ToString().ToLower().Contains("x"))
+                {
+                    string substring = StringOperations.RemoveAfter(rows[i][lookUpColIndex].ToString().ToLower(), "x");
+                    dt.Rows[i].SetField(lookUpColIndex, substring);
+                }
+
+            }
+
+            for (int i = 0; dt.Rows.Count > i; i++)
+            {
+                if (rows[i][lookUpColIndex].ToString().ToLower().Contains("blp"))
+                {
+                    string substring = StringOperations.RemoveFrom(rows[i][lookUpColIndex].ToString().ToLower(), "blp");
+                    dt.Rows[i].SetField(lookUpColIndex, substring);
+                }
+                if (rows[i][lookUpColIndex].ToString().ToLower().Contains("bleep"))
+                {
+                    string substring = StringOperations.RemoveFrom(rows[i][lookUpColIndex].ToString().ToLower(), "bleep");
+                    dt.Rows[i].SetField(lookUpColIndex, substring);
+                }
+            }
+
+            for (int i = 0; dt.Rows.Count > i; i++)
+            {
+                if (rows[i][lookUpColIndex].ToString().ToLower().Contains(":"))
+                {
+                    string substring = StringOperations.RemoveAfter(rows[i][lookUpColIndex].ToString().ToLower(), ":");
+                    dt.Rows[i].SetField(lookUpColIndex, substring);
+                }
+                if (rows[i][lookUpColIndex].ToString().ToLower().Contains("."))
+                {
+                    string substring = StringOperations.RemoveAfter(rows[i][lookUpColIndex].ToString().ToLower(), ".");
+                    dt.Rows[i].SetField(lookUpColIndex, substring);
+                }
+            }
+
+            for (int i = 0; dt.Rows.Count > i; i++)
+            {
+                if (rows[i][lookUpColIndex].ToString().Length == 2)
+                {
+
+                    dt.Rows[i].SetField(lookUpColIndex, "00" + rows[i][lookUpColIndex].ToString());
+
+                }
+
+                if (rows[i][lookUpColIndex].ToString().Length == 3)
+                {
+
+                    dt.Rows[i].SetField(lookUpColIndex, "0" + rows[i][lookUpColIndex].ToString());
+
+                }
+            }
+
+            for (int i = 0; dt.Rows.Count > i; i++)
+            {
+                if (rows[i][lookUpColIndex].ToString().ToLower().Contains("appl"))
+                {
+                    dt.Rows[i].SetField(lookUpColIndex, "");
+                }
+            }
+
+
+                CsvOperations.DataTableToCsv(dt, "C:\\Users\\daian\\Documents\\c.projects\\DRIVE\\GSTT\\output\\output.csv");
 
 
 
